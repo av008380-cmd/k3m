@@ -1,7 +1,25 @@
-import React from 'react';
-import { CheckCircle, Award, Target, Eye } from 'lucide-react';
+import React, { useState } from 'react';
+import { CheckCircle, Award, Target, Eye, Camera } from 'lucide-react';
 
 export const About: React.FC = () => {
+  // State for infrastructure gallery images
+  const [infraImages, setInfraImages] = useState([
+    { id: 'latex', title: "Latex Printing", src: "https://placehold.co/600x400/e5e7eb/1f2937?text=Latex+Printing+Unit" },
+    { id: 'plotter', title: "Graphtec Plotter", src: "https://placehold.co/600x400/e5e7eb/1f2937?text=Plotter+Machine" },
+    { id: 'cnc', title: "CNC Router", src: "https://placehold.co/600x400/e5e7eb/1f2937?text=CNC+Router+Machine" },
+    { id: 'yard', title: "Fabrication Yard", src: "https://placehold.co/600x400/e5e7eb/1f2937?text=Fabrication+Yard" },
+  ]);
+
+  const handleInfraImageUpload = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const newSrc = URL.createObjectURL(file);
+      const newImages = [...infraImages];
+      newImages[index].src = newSrc;
+      setInfraImages(newImages);
+    }
+  };
+
   return (
     <div className="bg-white">
       {/* Header */}
@@ -72,22 +90,28 @@ export const About: React.FC = () => {
              We have a state-of-the-art Manufacturing Plant at Noida (UP), having imported and indigenous machines capable of manufacturing world-class Digital prints and Signboards.
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-             <div className="space-y-2">
-                <img src="https://placehold.co/600x400/e5e7eb/1f2937?text=Latex+Printing+Unit" className="rounded-lg shadow-md w-full h-48 object-cover" alt="Latex Printing Machine" />
-                <p className="text-sm font-semibold text-center">Latex Printing</p>
-             </div>
-             <div className="space-y-2">
-                <img src="https://placehold.co/600x400/e5e7eb/1f2937?text=Plotter+Machine" className="rounded-lg shadow-md w-full h-48 object-cover" alt="Plotter Machine" />
-                <p className="text-sm font-semibold text-center">Graphtec Plotter</p>
-             </div>
-             <div className="space-y-2">
-                <img src="https://placehold.co/600x400/e5e7eb/1f2937?text=CNC+Router+Machine" className="rounded-lg shadow-md w-full h-48 object-cover" alt="CNC Router" />
-                <p className="text-sm font-semibold text-center">CNC Router</p>
-             </div>
-             <div className="space-y-2">
-                <img src="https://placehold.co/600x400/e5e7eb/1f2937?text=Fabrication+Yard" className="rounded-lg shadow-md w-full h-48 object-cover" alt="Fabrication Yard" />
-                <p className="text-sm font-semibold text-center">Fabrication Yard</p>
-             </div>
+             {infraImages.map((item, idx) => (
+               <div key={item.id} className="space-y-2 group relative">
+                  <div className="relative rounded-lg overflow-hidden shadow-md h-48 bg-gray-200">
+                    <img src={item.src} className="w-full h-full object-cover" alt={item.title} />
+                    
+                    {/* Overlay Upload Button */}
+                    <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer">
+                      <div className="text-white flex flex-col items-center">
+                        <Camera size={24} className="mb-1" />
+                        <span className="text-xs font-bold uppercase tracking-wide">Change</span>
+                      </div>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={(e) => handleInfraImageUpload(idx, e)}
+                      />
+                    </label>
+                  </div>
+                  <p className="text-sm font-semibold text-center">{item.title}</p>
+               </div>
+             ))}
           </div>
         </div>
       </div>

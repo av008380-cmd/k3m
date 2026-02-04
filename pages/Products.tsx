@@ -1,15 +1,30 @@
 import React, { useState } from 'react';
 import { PRODUCTS } from '../constants';
 import { Product } from '../types';
+import { Upload, Camera } from 'lucide-react';
 
 export const Products: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
+  
+  // State to manage individual images for each product
+  const [productImages, setProductImages] = useState<Record<string, string>>({});
 
   const categories = ['All', 'Signage', 'Furniture', 'Technology', 'Lighting'];
 
   const filteredProducts = activeCategory === 'All' 
     ? PRODUCTS 
     : PRODUCTS.filter(p => p.category === activeCategory);
+
+  const handleImageUpload = (id: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const imageUrl = URL.createObjectURL(file);
+      setProductImages(prev => ({
+        ...prev,
+        [id]: imageUrl
+      }));
+    }
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -42,16 +57,33 @@ export const Products: React.FC = () => {
         {/* Product Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProducts.map((product: Product) => (
-            <div key={product.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col">
-              <div className="h-64 overflow-hidden relative">
+            <div key={product.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col group">
+              <div className="h-64 overflow-hidden relative bg-gray-200">
                 <img 
-                  src={product.image} 
+                  src={productImages[product.id] || product.image} 
                   alt={product.title} 
-                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute top-4 left-4 bg-black/60 text-white text-xs font-bold px-2 py-1 rounded">
+                
+                {/* Product Category Badge */}
+                <div className="absolute top-4 left-4 bg-black/60 text-white text-xs font-bold px-2 py-1 rounded backdrop-blur-sm z-10">
                   {product.category}
                 </div>
+
+                {/* Individual Upload Button Overlay */}
+                <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-20">
+                  <div className="bg-white text-gray-900 px-4 py-2 rounded-full font-bold shadow-lg flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform">
+                    <Camera size={20} />
+                    <span>Change Photo</span>
+                  </div>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={(e) => handleImageUpload(product.id, e)}
+                  />
+                </label>
+
               </div>
               <div className="p-6 flex-grow flex flex-col">
                 <h3 className="text-xl font-bold text-gray-900 mb-3">{product.title}</h3>

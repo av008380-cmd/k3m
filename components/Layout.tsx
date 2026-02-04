@@ -9,13 +9,13 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { pathname } = useLocation();
-
+  
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
 
   return (
-    <div className="flex flex-col min-h-screen font-sans text-gray-900 bg-gray-50">
+    <div className="flex flex-col min-h-screen font-sans text-gray-900 bg-gray-50 relative">
       <Navbar />
       <main className="flex-grow">
         {children}

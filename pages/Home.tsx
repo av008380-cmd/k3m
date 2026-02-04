@@ -1,21 +1,50 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ShieldCheck, Truck, Lightbulb, Map } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Truck, Lightbulb, Map, Camera, Upload } from 'lucide-react';
 import { CLIENTS, PRODUCTS } from '../constants';
 
 export const Home: React.FC = () => {
+  // State for customizable images on Home page
+  const [heroImage, setHeroImage] = useState("https://placehold.co/1920x1080/1e3a8a/FFFFFF?text=High+Quality+Road+Infrastructure+Background");
+  const [aboutImage, setAboutImage] = useState("https://placehold.co/800x600/f3f4f6/1e3a8a?text=Factory+Operations+%26+Manufacturing");
+  const [featuredImages, setFeaturedImages] = useState<Record<string, string>>({});
+
+  const handleHeroUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) setHeroImage(URL.createObjectURL(e.target.files[0]));
+  };
+
+  const handleAboutUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) setAboutImage(URL.createObjectURL(e.target.files[0]));
+  };
+
+  const handleFeaturedUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setFeaturedImages(prev => ({...prev, [id]: URL.createObjectURL(e.target.files![0])}));
+    }
+  };
+
   return (
     <>
       {/* Hero Section */}
-      <section className="relative h-[600px] flex items-center justify-center overflow-hidden bg-gray-900">
+      <section className="relative h-[600px] flex items-center justify-center overflow-hidden bg-gray-900 group">
         {/* Background Image Overlay */}
         <div className="absolute inset-0 z-0 opacity-60">
           <img 
-            src="https://placehold.co/1920x1080/1e3a8a/FFFFFF?text=High+Quality+Road+Infrastructure+Background" 
+            src={heroImage}
             alt="Highway Infrastructure" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-opacity duration-500"
           />
         </div>
+        
+        {/* Hero Image Edit Button */}
+        <label className="absolute top-4 right-4 z-20 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white p-2 rounded-lg cursor-pointer transition opacity-0 group-hover:opacity-100 border border-white/30">
+          <div className="flex items-center gap-2">
+            <Camera size={20} />
+            <span className="text-sm font-medium">Change Background</span>
+          </div>
+          <input type="file" className="hidden" accept="image/*" onChange={handleHeroUpload} />
+        </label>
+
         <div className="absolute inset-0 bg-gradient-to-r from-corporate-blue/90 to-transparent z-0"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left w-full">
@@ -59,9 +88,19 @@ export const Home: React.FC = () => {
                 Read our full story <ArrowRight size={16} className="ml-2"/>
               </Link>
             </div>
-            <div className="relative h-96 rounded-lg overflow-hidden shadow-2xl">
-              <img src="https://placehold.co/800x600/f3f4f6/1e3a8a?text=Factory+Operations+%26+Manufacturing" alt="Factory Operations" className="w-full h-full object-cover" />
-              <div className="absolute bottom-0 left-0 bg-corporate-blue text-white p-6 w-3/4 rounded-tr-lg">
+            <div className="relative h-96 rounded-lg overflow-hidden shadow-2xl group">
+              <img src={aboutImage} alt="Factory Operations" className="w-full h-full object-cover" />
+              
+              {/* About Image Edit Button */}
+              <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition">
+                <div className="bg-white text-gray-900 px-4 py-2 rounded-full font-bold flex items-center gap-2 shadow-lg">
+                  <Camera size={18} />
+                  <span>Change Photo</span>
+                </div>
+                <input type="file" className="hidden" accept="image/*" onChange={handleAboutUpload} />
+              </label>
+
+              <div className="absolute bottom-0 left-0 bg-corporate-blue text-white p-6 w-3/4 rounded-tr-lg pointer-events-none">
                 <p className="font-bold text-xl">100+ Major Projects</p>
                 <p className="text-sm opacity-80">Executed across Pan-India</p>
               </div>
@@ -119,15 +158,26 @@ export const Home: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {PRODUCTS.slice(0, 3).map((product) => (
               <div key={product.id} className="group relative rounded-lg overflow-hidden shadow-lg h-80">
-                <img src={product.image} alt={product.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-6">
+                <img 
+                  src={featuredImages[product.id] || product.image} 
+                  alt={product.title} 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                />
+                
+                {/* Upload Button */}
+                <label className="absolute top-4 right-4 z-20 bg-white/90 text-gray-800 p-2 rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition shadow hover:bg-white">
+                   <Upload size={16} />
+                   <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFeaturedUpload(product.id, e)} />
+                </label>
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-6 pointer-events-none">
                   <h3 className="text-xl font-bold text-white mb-1">{product.title}</h3>
                   <p className="text-gray-300 text-sm line-clamp-2 mb-3">{product.description}</p>
                   <span className="text-corporate-yellow text-sm font-semibold flex items-center">
                     Learn More <ArrowRight size={14} className="ml-1" />
                   </span>
                 </div>
-                <Link to="/products" className="absolute inset-0"></Link>
+                <Link to="/products" className="absolute inset-0 z-10"></Link>
               </div>
             ))}
           </div>

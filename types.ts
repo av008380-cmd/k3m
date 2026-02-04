@@ -17,5 +17,5 @@ export interface Product {
 
 export interface Client {
   name: string;
-  logo: string; // Using text placeholder or generic icon for now
+  logo?: string; 
 }
